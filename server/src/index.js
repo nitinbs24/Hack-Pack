@@ -3,9 +3,12 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-// --- 1. IMPORT YOUR ROUTE FILES ---
+// --- IMPORT YOUR ROUTE FILES ---
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const orderRoutes = require('./routes/orderRoutes'); 
+
 
 const app = express();
 
@@ -18,14 +21,14 @@ app.get('/api', (req, res) => {
   res.json({ message: "Hello from the EcoFinds API!" });
 });
 
-// --- 2. USE THE ROUTES ---
-// This tells Express that for any URL starting with /api/auth,
-// it should look in the authRoutes file to find a match.
+// --- USE THE ROUTES ---
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes); // <-- MAKE SURE THIS LINE IS HERE
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
