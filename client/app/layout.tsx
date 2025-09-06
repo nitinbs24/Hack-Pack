@@ -3,13 +3,12 @@ import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
-import { ToastProvider } from "@/components/ui/toast"
 import { Suspense } from "react"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "EcoFinds - Sustainable Marketplace",
-  description: "Buy and sell eco-friendly products in a sustainable marketplace",
+  title: "EcoFinds - Sustainable Products Marketplace",
+  description: "Discover and share eco-friendly products for a sustainable future",
   generator: "v0.app",
 }
 
@@ -21,9 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        <Suspense fallback={null}>
-          <ToastProvider>{children}</ToastProvider>
-        </Suspense>
+        <Suspense fallback={null}>{children}</Suspense>
         <Analytics />
       </body>
     </html>
