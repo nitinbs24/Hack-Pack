@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation" // 👈 Import router
+import { useRouter } from "next/navigation"
 
 interface CartItem {
   id: string
@@ -20,9 +20,8 @@ interface CartItem {
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[] | null>(null)
-  const router = useRouter() // 👈 Initialize router
+  const router = useRouter()
 
-  // ✅ Load cart from localStorage safely (only in client)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedCart = localStorage.getItem("cart")
@@ -43,7 +42,6 @@ export default function CartPage() {
     }
   }, [])
 
-  // ✅ Sync cart changes to localStorage
   useEffect(() => {
     if (typeof window !== "undefined" && cartItems !== null) {
       localStorage.setItem("cart", JSON.stringify(cartItems))
@@ -51,7 +49,6 @@ export default function CartPage() {
     }
   }, [cartItems])
 
-  // ✅ Update quantity
   const updateQuantity = (id: string, newQuantity: number) => {
     if (!cartItems) return
     setCartItems(items =>
@@ -63,13 +60,11 @@ export default function CartPage() {
     )
   }
 
-  // ✅ Remove item
   const removeItem = (id: string) => {
     if (!cartItems) return
     setCartItems(items => items!.filter(item => item.id !== id))
   }
 
-  // ✅ Derived values
   const totalAmount =
     cartItems?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0
   const totalItems =
@@ -217,7 +212,6 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {/* 👇 Redirect to checkout page */}
                 <Button
                   className="w-full mb-3"
                   onClick={() => router.push("/checkout")}
