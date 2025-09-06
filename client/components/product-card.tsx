@@ -1,7 +1,9 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Star, ShoppingCart, Verified } from "lucide-react"
 import Image from "next/image"
 
 interface Product {
@@ -22,6 +24,48 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [isAddedToCart, setIsAddedToCart] = useState(false)
+  const [isLiked, setIsLiked] = useState(false)
+
+  const handleAddToCart = async () => {
+    setIsAddingToCart(true)
+
+    setTimeout(() => {
+      setIsAddingToCart(false)
+      setIsAddedToCart(true)
+
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]")
+      cart.push(product)
+      localStorage.setItem("cart", JSON.stringify(cart))
+
+      window.dispatchEvent(new Event("cartUpdated"))
+
+      setTimeout(() => {
+        setIsAddedToCart(false)
+      }, 2000)
+
+      console.log(`Added ${product.title} to cart for ₹${product.price}`)
+    }, 800)
+  }
+
+  const handleLike = () => {
+    setIsLiked(!isLiked)
+
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]")
+    if (!isLiked) {
+      wishlist.push(product)
+      console.log(`Added ${product.title} to wishlist`)
+    } else {
+      const index = wishlist.findIndex((item: Product) => item.id === product.id)
+      if (index > -1) {
+        wishlist.splice(index, 1)
+        console.log(`Removed ${product.title} from wishlist`)
+      }
+    }
+    localStorage.setItem("wishlist", JSON.stringify(wishlist))
+  }
+
   return (
     <Card className="group hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border-border/30 hover:border-primary/30 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
       <CardContent className="p-0">
@@ -36,11 +80,16 @@ export function ProductCard({ product }: ProductCardProps) {
           <Button
             size="sm"
             variant="secondary"
+            onClick={handleLike}
             className="absolute top-3 right-3 h-9 w-9 p-0 bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm rounded-full border-0"
           >
-            <Heart className="h-4 w-4 text-gray-600 hover:text-red-500 transition-colors" />
+            <span
+              className={`text-lg transition-colors ${isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"}`}
+            >
+              {isLiked ? "❤️" : "🤍"}
+            </span>
           </Button>
-          <Badge className="absolute top-3 left-3 bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg border-0 rounded-full px-3 py-1">
+          <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground shadow-lg border-0 rounded-full px-3 py-1">
             {product.category}
           </Badge>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -60,7 +109,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <span className="text-sm font-semibold text-foreground">{product.seller}</span>
               {product.isVerified && (
                 <div className="flex items-center">
-                  <Verified className="h-4 w-4 text-primary" />
+                  <span className="text-primary text-sm">✓</span>
                 </div>
               )}
             </div>
@@ -68,7 +117,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1 bg-yellow-50 px-2 py-1 rounded-full">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="text-yellow-400">⭐</span>
               <span className="text-sm font-semibold text-yellow-700">{product.rating}</span>
             </div>
             <span className="text-xs text-muted-foreground">({product.reviews} reviews)</span>
@@ -83,9 +132,27 @@ export function ProductCard({ product }: ProductCardProps) {
       </CardContent>
 
       <CardFooter className="p-5 pt-0">
-        <Button className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl py-6 text-base font-semibold">
-          <ShoppingCart className="h-5 w-5 mr-2" />
-          Add to Cart
+        <Button
+          onClick={handleAddToCart}
+          disabled={isAddingToCart || isAddedToCart}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl py-6 text-base font-semibold disabled:opacity-70"
+        >
+          {isAddingToCart ? (
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Adding...
+            </>
+          ) : isAddedToCart ? (
+            <>
+              <span className="mr-2">✓</span>
+              Added to Cart!
+            </>
+          ) : (
+            <>
+              <span className="mr-2">🛒</span>
+              Add to Cart
+            </>
+          )}
         </Button>
       </CardFooter>
     </Card>
